@@ -3,8 +3,6 @@
 Apna Saathi is a small web app that lets you talk to an AI that **speaks like a loved one in your local language**.  
 You create a profile (name, relationship, language, personality, pet names, common phrases, and an optional voice recording), then chat with them via text and voice.
 
-> Security note: API keys are read from environment variables only. The app will not start without `SARVAM_API_KEY`.
-
 The app runs **fully on your machine**:
 
 - **Frontend**: `index.html` + `static/app.js` + `static/style.css`
@@ -22,15 +20,14 @@ The app runs **fully on your machine**:
 - `requirements.txt` – Python dependencies
 - `templates/index.html` – Main single-page UI
 - `static/style.css` – Aesthetic dark/light responsive UI
-- `static/app.js` – Frontend logic (intro landing, profile setup, training, chat, STT, TTS)
-- `src/remotion/` – Remotion source components used as design reference for intro animation flow
+
 
 ---
 
 ## Prerequisites
 
 - **Python** 3.10+ installed and on your PATH
-- **Node.js** 18+ (for Remotion studio/render pipeline)
+
 - A Sarvam AI API key
 - (Optional, but recommended for better text replies) a Gemini API key
 - `pip` for installing Python packages
@@ -74,31 +71,6 @@ The app runs **fully on your machine**:
    python .\server.py
    ```
 
----
-
-## Remotion Intro Video (optional build pipeline)
-
-This project also includes a Remotion setup for the intro concept in `src/remotion/`.
-
-1. Install Node dependencies:
-
-   ```bash
-   npm install
-   ```
-
-2. Open Remotion Studio:
-
-   ```bash
-   npm run remotion:studio
-   ```
-
-3. Render MP4:
-
-   ```bash
-   npm run remotion:render
-   ```
-
-Generated output goes to `out/apna-saathi.mp4`.
 
    You should see output similar to:
 
@@ -185,13 +157,6 @@ Set these before running `server.py`:
 - `GEMINI_API_KEY` – **optional**, used for:
   - `/api/chat` (primary text generation via Gemini 1.5 Flash)
 
-Optional runtime settings:
-
-- `APP_HOST` – server bind host (default: `127.0.0.1`)
-- `APP_PORT` – server port (default: `5000`)
-- `FLASK_DEBUG` – debug mode (`1`/`true` to enable, default: off)
-- `CORS_ORIGINS` – comma-separated allowed origins for `/api/*`
-   - default: `http://localhost:5000,http://127.0.0.1:5000`
 
 Example (PowerShell):
 
