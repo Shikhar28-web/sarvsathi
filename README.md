@@ -1,188 +1,134 @@
-## Apna Saathi – Speak With Your Loved Ones
+# Apna Saathi
 
-Apna Saathi is a small web app that lets you talk to an AI that **speaks like a loved one in your local language**.  
-You create a profile (name, relationship, language, personality, pet names, common phrases, and an optional voice recording), then chat with them via text and voice.
+Apna Saathi is a Flask + vanilla JS web app for multilingual AI conversations with personalized personas.
 
-The app runs **fully on your machine**:
+You can:
+- create a persona (name, relationship, language, personality, phrases, voice preference),
+- chat over text,
+- generate speech replies (TTS),
+- transcribe user speech and profile audio (STT).
 
-- **Frontend**: `index.html` + `static/app.js` + `static/style.css`
-- **Backend**: `server.py` (Flask)
-- **LLM (text brain)**: Sarvam-M by default, optionally **Gemini 1.5 Flash** if you provide a Gemini API key
-- **Voice**:
-  - **TTS (Suno button)**: Sarvam Bulbul
-  - **STT (mic)**: Sarvam Saarika
+The app runs locally in your browser at `http://127.0.0.1:5000`.
 
----
+## Current Project Structure
 
-## Project Structure
+```text
+sarvsathi/
+   backend/
+      server.py
+      requirements.txt
+   frontend/
+      static/
+         app.js
+         style.css
+         logo.png
+      templates/
+         index.html
+   requirements.txt
+   README.md
+```
 
-- `server.py` – Flask backend, proxies calls to Sarvam and (optionally) Gemini
-- `requirements.txt` – Python dependencies
-- `templates/index.html` – Main single-page UI
-- `static/style.css` – Aesthetic dark/light responsive UI
+## Tech Stack
 
-
----
+- Backend: Flask, Flask-CORS
+- Frontend: HTML/CSS/JavaScript (no framework)
+- LLM text generation:
+   - Primary (optional): Gemini `gemini-2.5-flash`
+   - Fallback/default: Sarvam `sarvam-m`
+- Voice APIs:
+   - TTS: Sarvam Bulbul (`bulbul:v2`)
+   - STT: Sarvam Saarika (`saarika:v2.5`)
 
 ## Prerequisites
 
-- **Python** 3.10+ installed and on your PATH
+- Python 3.10+ (3.14 also works)
+- Sarvam API key (required)
+- Gemini API key (optional, enables Gemini for `/api/chat`)
 
-- A Sarvam AI API key
-- (Optional, but recommended for better text replies) a Gemini API key
-- `pip` for installing Python packages
+## Setup
 
----
+Run from the project root (`sarvsathi/`):
 
-## Setup (Windows, PowerShell)
-
-1. **Go to the project folder**
-
-   ```powershell
-   cd "C:\Users\Shikhar\OneDrive\Desktop\local"
-   ```
-
-2. **Install dependencies**
-
-   ```powershell
-   pip install -r requirements.txt
-   ```
-
-3. **Set your API keys in this terminal**
-
-   Sarvam (required):
-
-   ```powershell
-   $env:SARVAM_API_KEY = "YOUR_SARVAM_API_KEY_HERE"
-   ```
-
-   Gemini (optional – enables higher-quality text answers using Gemini 1.5 Flash):
-
-   ```powershell
-   $env:GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"
-   ```
-
-   > These environment variables only live in the current terminal window.  
-   > Whenever you open a new PowerShell window, set them again before running the server.
-
-4. **Run the backend server**
-
-   ```powershell
-   python .\server.py
-   ```
-
-
-   You should see output similar to:
-
-   ```text
-   ==================================================
-     Apna Saathi - Server Starting
-     Open in browser: http://localhost:5000
-   ==================================================
-   * Running on http://127.0.0.1:5000
-   ```
-
----
-
-## How to Open and Use the App
-
-1. **Open the website**
-
-   After `python server.py` is running, open your browser and go to:
-
-   ```text
-   http://localhost:5000
-   ```
-
-2. **Create a loved-one profile**
-
-   - Click **“Shuru Karein / Get Started”**
-   - Step 1:
-     - Enter **their name**
-     - Choose **relationship** (mother, father, partner, friend, etc.)
-     - Choose **language** (Hindi, Bangla, etc.)
-     - Choose **voice type** (male/female)
-   - Step 2:
-     - Enter what they **call you** (pet name)
-     - Choose **personality chips** (warm, funny, strict, etc.)
-     - Add some **common phrases** they use
-     - Add one line they always **repeat or believe in**
-     - (Optional) Upload a **short voice recording** of them – the app will transcribe it and adapt their wording style.
-
-3. **Start chatting**
-
-   - Click **“Milao Unse ✦ / Meet Them ✦”**
-   - Type a message in the input box and press **Enter** or click **Send**
-   - The AI will now reply **in your selected language**, in the style of that loved one
-
-4. **Hear their voice (TTS – “Suno”)**
-
-   - Under any reply bubble, click **“Sunao / Play”**
-   - The frontend calls `/api/tts`, which uses **Sarvam Bulbul** to generate audio and plays it in the browser
-
-5. **Speak to them with your voice (STT)**
-
-   - Click the **mic button**
-   - Speak your message
-   - When it stops, your speech is sent to `/api/stt` (Sarvam Saarika), transcribed, and dropped into the chat input box for you to send
-
----
-
-## How the Models Are Used
-
-- **Text replies**
-  - If `GEMINI_API_KEY` is set:
-    - `/api/chat` sends the system prompt + conversation to **Gemini 1.5 Flash (gemini-1.5-flash-latest)** for higher-quality, more natural answers.
-    - If Gemini fails for any reason, it automatically **falls back** to **Sarvam-M**.
-  - If `GEMINI_API_KEY` is not set:
-    - `/api/chat` uses **Sarvam-M** directly via Sarvam’s chat-completion API.
-
-- **Voice**
-  - **Text → speech**: `/api/tts` → Sarvam **Bulbul v2**
-  - **Speech → text**: `/api/stt` and `/api/transcribe_profile_audio` → Sarvam **Saarika v2.5**
-
-All external calls happen in `server.py`; the browser only talks to your local Flask server, not directly to Sarvam or Gemini.
-
----
-
-## Environment Variables Summary
-
-Set these before running `server.py`:
-
-- `SARVAM_API_KEY` – **required**, used for:
-  - `/api/chat` (Sarvam fallback)
-  - `/api/tts` (Bulbul)
-  - `/api/stt` and `/api/transcribe_profile_audio` (Saarika)
-
-- `GEMINI_API_KEY` – **optional**, used for:
-  - `/api/chat` (primary text generation via Gemini 1.5 Flash)
-
-
-Example (PowerShell):
-
-```powershell
-$env:SARVAM_API_KEY = "sk_XXXXXXXXXXXXXXXXXXXXXXXX"
-$env:GEMINI_API_KEY = "AIzaSyXXXXXXXXXXXXXXXXXXXXX"
-python .\server.py
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r backend/requirements.txt
 ```
 
----
+Create `.env` in project root:
 
-## Pushing to GitHub
+```bash
+cp .env.example .env
+```
 
-Once everything works locally:
+Then fill values like this:
 
-1. Create a new GitHub repo (empty).
-2. In your project folder:
+```env
+SARVAM_API_KEY=your_sarvam_key_here
+GEMINI_API_KEY=your_gemini_key_here
 
-   ```powershell
-   git init
-   git remote add origin https://github.com/<your-username>/<your-repo>.git
-   git add .
-   git commit -m "Initial commit: Apna Saathi local loved-one chat"
-   git push -u origin main
-   ```
+# optional runtime settings
+APP_HOST=127.0.0.1
+APP_PORT=5000
+FLASK_DEBUG=false
+# CORS_ORIGINS=http://localhost:5000,http://127.0.0.1:5000
+```
 
-> **Important:** Do **not** commit your actual API keys.  
-> Only keep them in environment variables or in a local `.env` file that is ignored by `.gitignore`.
+Notes:
+- `SARVAM_API_KEY` is mandatory.
+- `GEMINI_API_KEY` is optional. If absent or Gemini fails, server falls back to Sarvam.
+
+## Run
+
+```bash
+source .venv/bin/activate
+cd backend
+python server.py
+```
+
+Open `http://127.0.0.1:5000` in your browser.
+
+## API Endpoints
+
+- `POST /api/chat`
+   - Input: `system`, `messages`
+   - Uses Gemini (if configured), otherwise Sarvam chat completion.
+- `POST /api/tts`
+   - Input: `text`, `language_code`, `speaker`
+   - Returns Base64 audio from Bulbul.
+- `POST /api/stt`
+   - Multipart input: `audio` + `language_code`
+   - Returns transcript from Saarika.
+- `POST /api/transcribe_profile_audio`
+   - Multipart input: `audio` + `language_code`
+   - Transcribes uploaded sample voice to help persona styling.
+
+## Troubleshooting
+
+- `ModuleNotFoundError` after activating venv:
+   - Always install with `python -m pip ...` (not plain `pip3`).
+   - Verify interpreter:
+      - `which python3`
+      - `python3 -c 'import sys; print(sys.executable)'`
+   - Both should point inside `.venv/`.
+
+- `externally-managed-environment` (macOS/Homebrew):
+   - You are using system/Homebrew pip, not project venv pip.
+   - Activate venv and run installs via `python -m pip`.
+
+- Project folder renamed/moved and venv behaves oddly:
+   - Recreate venv:
+      - `mv .venv .venv_old`
+      - `python3 -m venv .venv`
+      - reinstall requirements.
+
+## Security
+
+- Do not commit real API keys.
+- `.env` is gitignored by default.
+
+## License
+
+See `LICENSE`.
 
